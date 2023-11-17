@@ -20,7 +20,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "user", schema = "public")
+@Table(name = "user", schema = "proyectofinal")
 public class User implements UserDetails, Serializable {
     private static final long serialVersionUID = 4659509933512471771L;
 
