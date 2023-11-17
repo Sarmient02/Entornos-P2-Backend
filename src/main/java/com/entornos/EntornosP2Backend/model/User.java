@@ -57,6 +57,10 @@ public class User implements UserDetails, Serializable {
             @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
 
+
+    /*@OneToMany(mappedBy = "user")
+    private List<UserRoles> userRoles;*/
+
     /*@JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts;*/

@@ -5,8 +5,11 @@ import com.entornos.EntornosP2Backend.dto.SignUpRequestDTO;
 import com.entornos.EntornosP2Backend.dto.UserDataDTO;
 import com.entornos.EntornosP2Backend.model.Role;
 import com.entornos.EntornosP2Backend.model.User;
+import com.entornos.EntornosP2Backend.model.UserRoles;
+import com.entornos.EntornosP2Backend.model.UserRolesId;
 import com.entornos.EntornosP2Backend.repository.IRoleRepository;
 import com.entornos.EntornosP2Backend.repository.IUserRepository;
+import com.entornos.EntornosP2Backend.repository.IUserRoleRepository;
 import com.entornos.EntornosP2Backend.service.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,7 @@ public class UserServiceImpl implements IUserService {
 
     private IUserRepository userRepository;
 
+    private IUserRoleRepository userRoleRepository;
     private IRoleRepository roleRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -59,9 +61,16 @@ public class UserServiceImpl implements IUserService {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         Role role = roleRepository.findByName("user");
-        user.setRoles(Set.of(role));
-
         user = this.save(user);
+        var userRoleId = new UserRolesId();
+        userRoleId.setRoleId(role.getId());
+        userRoleId.setUserId(user.getId());
+        var userRole = new UserRoles();
+        userRole.setId(userRoleId);
+        userRole.setCreatedAt(new Date());
+        userRole.setUpdatedAt(new Date());
+        this.userRoleRepository.save(userRole);
+
         return user;
     }
 
@@ -96,7 +105,7 @@ public class UserServiceImpl implements IUserService {
     public boolean edit(EditUserRequestDTO editedUser) {
         Optional<User> oldUser = userRepository.findById(editedUser.getId());
         if (oldUser.isPresent()){
-            if(editedUser.getPassword().isEmpty() || editedUser.getPassword() == null){
+            if(editedUser.getPassword().isEmpty()){
                 editedUser.setPassword(oldUser.get().getPassword());
             }else{
                 editedUser.setPassword(passwordEncoder.encode(editedUser.getPassword()));
@@ -108,23 +117,46 @@ public class UserServiceImpl implements IUserService {
             user.setEmail(editedUser.getEmail());
             user.setUsername(editedUser.getUsername());
             user.setPassword(editedUser.getPassword());
-            user.setRoles(this.editUserRoles(editedUser));
             this.save(user);
+            this.editUserRoles(editedUser);
+            //user.setRoles(this.editUserRoles(editedUser));
             return true;
         }
         return false;
     }
 
-    public Set<Role> editUserRoles(EditUserRequestDTO newUser) {
+    private void editUserRoles(EditUserRequestDTO newUser) {
         Set<Role> newRoles = new HashSet<>();
+        User oldUser = userRepository.findById(newUser.getId()).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        var roles = oldUser.getRoles();
+        List<String> newRolesNames = new ArrayList<>();
+        if (roles != null){
+            newRolesNames = newUser.getRoles().stream().filter(role -> !roles.contains(role)).toList();
+        } else {
+            newRolesNames = newUser.getRoles();
+        }
 
-        for(String roleName : newUser.getRoles()) {
+        if (newRolesNames.isEmpty()) {
+            Role defaultRole = roleRepository.findByName("user");
+            saveUserRole(newUser, defaultRole);
+        }
+        for(String roleName : newRolesNames) {
             Role role = roleRepository.findByName(roleName);
             if(role != null) {
-                newRoles.add(role);
+                saveUserRole(newUser, role);
             }
         }
-        return newRoles;
+    }
+
+    private void saveUserRole(EditUserRequestDTO newUser, Role defaultRole) {
+        var userRoleId = new UserRolesId();
+        userRoleId.setRoleId(defaultRole.getId());
+        userRoleId.setUserId(newUser.getId());
+        var userRole = new UserRoles();
+        userRole.setId(userRoleId);
+        userRole.setCreatedAt(new Date());
+        userRole.setUpdatedAt(new Date());
+        this.userRoleRepository.save(userRole);
     }
 
     @Override
@@ -142,4 +174,8 @@ public class UserServiceImpl implements IUserService {
         this.roleRepository = roleRepository;
     }
 
+    @Autowired
+    public void setUserRoleRepository(IUserRoleRepository userRoleRepository) {
+        this.userRoleRepository = userRoleRepository;
+    }
 }
