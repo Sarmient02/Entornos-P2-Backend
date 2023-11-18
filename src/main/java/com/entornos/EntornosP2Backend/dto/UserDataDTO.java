@@ -3,6 +3,8 @@ package com.entornos.EntornosP2Backend.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class UserDataDTO {
@@ -11,8 +13,12 @@ public class UserDataDTO {
 
     private String username;
 
-    private String fullName;
+    private String full_name;
 
-    private String role;
+    private String student_code;
+
+    private String email;
+
+    private List<String> roles;
 
 }

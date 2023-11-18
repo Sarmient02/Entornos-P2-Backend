@@ -32,11 +32,9 @@ public class UserController {
 
     @PutMapping()
     @PreAuthorize("hasAuthority('admin')")
-    public ResponseEntity<?> edit(@RequestBody EditUserRequestDTO request) {
+    public void edit(@RequestBody EditUserRequestDTO request) {
         if(userService.edit(request)){
-            return ResponseEntity.ok("User edited successfully");
         } else {
-            return ResponseEntity.badRequest().body("User not found");
         }
     }
 
@@ -44,6 +42,12 @@ public class UserController {
     @PreAuthorize("hasAuthority('admin')")
     public void delete(@PathVariable Long id) {
         userService.delete(id);
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('admin')")
+    public ResponseEntity<UserDataDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping("/data")

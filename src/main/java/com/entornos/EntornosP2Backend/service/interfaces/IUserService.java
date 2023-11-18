@@ -18,6 +18,8 @@ public interface IUserService {
 
     public UserDetailsService userDetailsService();
 
+    public UserDataDTO getUserById(Long id);
+
     public List<User> findAll();
 
     public User save(User newUser);

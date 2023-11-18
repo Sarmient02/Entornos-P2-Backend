@@ -51,6 +51,19 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
     }
 
+    public UserDataDTO getUserById(Long id) {
+        UserDataDTO userDataDTO = new UserDataDTO();
+        userRepository.findById(id).ifPresent(user -> {
+            userDataDTO.setFull_name(user.getFullName());
+            userDataDTO.setUsername(user.getUsername());
+            userDataDTO.setEmail(user.getEmail());
+            userDataDTO.setStudent_code(user.getStudentCode());
+            userDataDTO.setId(user.getId().longValue());
+            userDataDTO.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+        });
+        return userDataDTO;
+    }
+
     public User create(SignUpRequestDTO request) {
         var user = new User();
         user.setFullName(request.getFull_name());
@@ -94,9 +107,9 @@ public class UserServiceImpl implements IUserService {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         UserDataDTO userDataDTO = new UserDataDTO();
         userDataDTO.setUsername(userDetails.getUsername());
-        userDataDTO.setRole(userDetails.getAuthorities().toArray()[0].toString());
+        userDataDTO.setRoles(userDetails.getAuthorities().stream().map(role -> role.getAuthority()).collect(Collectors.toList()));
         userRepository.findByUsername(userDetails.getUsername()).ifPresent(user -> {
-            userDataDTO.setFullName(user.getFullName());
+            userDataDTO.setFull_name(user.getFullName());
             userDataDTO.setId(user.getId());
         });
         return userDataDTO;
