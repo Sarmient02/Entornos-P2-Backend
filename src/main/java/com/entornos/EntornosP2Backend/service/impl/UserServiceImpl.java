@@ -53,8 +53,8 @@ public class UserServiceImpl implements IUserService {
 
     public User create(SignUpRequestDTO request) {
         var user = new User();
-        user.setFullName(request.getFullName());
-        user.setStudentCode(request.getStudentCode());
+        user.setFullName(request.getFull_name());
+        user.setStudentCode(request.getStudent_code());
         user.setEmail(request.getEmail());
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -112,8 +112,8 @@ public class UserServiceImpl implements IUserService {
             }
             User user = new User();
             user.setId(editedUser.getId());
-            user.setFullName(editedUser.getFullName());
-            user.setStudentCode(editedUser.getStudentCode());
+            user.setFullName(editedUser.getFull_name());
+            user.setStudentCode(editedUser.getStudent_code());
             user.setEmail(editedUser.getEmail());
             user.setUsername(editedUser.getUsername());
             user.setPassword(editedUser.getPassword());

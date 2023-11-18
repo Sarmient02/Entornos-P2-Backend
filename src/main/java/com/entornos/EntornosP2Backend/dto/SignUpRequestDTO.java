@@ -13,9 +13,9 @@ public class SignUpRequestDTO {
 
     String username;
 
-    String fullName;
+    String full_name;
 
-    String studentCode;
+    String student_code;
 
     String email;
 
