@@ -28,6 +28,10 @@ public class JwtServiceImpl {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public Integer extractUserId(String token) {
+        return extractClaim(token, claims -> claims.get("id", Integer.class));
+    }
+
     public String generateToken(UserDetails userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
