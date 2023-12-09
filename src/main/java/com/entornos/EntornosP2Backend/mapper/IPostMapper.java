@@ -1,6 +1,7 @@
 package com.entornos.EntornosP2Backend.mapper;
 
 import com.entornos.EntornosP2Backend.dto.PostResponseDTO;
+import com.entornos.EntornosP2Backend.dto.SubjectResponseDTO;
 import com.entornos.EntornosP2Backend.dto.UserPostData;
 import com.entornos.EntornosP2Backend.model.File;
 import com.entornos.EntornosP2Backend.model.Post;
@@ -32,6 +33,9 @@ public interface IPostMapper {
         if (files != null && !files.isEmpty()){
             dto.setFiles(IFileMapper.INSTANCE.filesToFileResponseDTOList(post.getFile()));
         }
+        SubjectResponseDTO subject = new SubjectResponseDTO();
+        subject.setName(post.getSubject().getName());
+        dto.setSubject(subject);
         User user = post.getUser();
         UserPostData userData = new UserPostData();
         userData.setId(user.getId());

@@ -17,6 +17,8 @@ public class PostResponseDTO {
 
     String description;
 
+    SubjectResponseDTO subject;
+
     LocalDateTime createdAt;
 
     List<FileResponseDTO> files;
