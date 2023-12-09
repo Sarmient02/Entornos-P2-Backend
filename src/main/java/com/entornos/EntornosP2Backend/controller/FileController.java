@@ -1,5 +1,8 @@
 package com.entornos.EntornosP2Backend.controller;
 
+import com.entornos.EntornosP2Backend.dto.DownloadResponseDTO;
+import com.entornos.EntornosP2Backend.dto.ResponseDTO;
+import com.entornos.EntornosP2Backend.model.File;
 import com.entornos.EntornosP2Backend.service.interfaces.IFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,27 +23,40 @@ public class FileController {
         return new ResponseEntity<>(fileService.uploadFile(file), HttpStatus.OK);
     }*/
 
-    @GetMapping("/download/{fileName}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable String fileName) {
-        byte[] data = fileService.downloadFile(fileName);
-        ByteArrayResource resource = new ByteArrayResource(data);
+    @PostMapping("/upload/{idPost}")
+    public ResponseEntity<ResponseDTO> uploadFile(
+            @RequestParam(value = "file") MultipartFile file,
+            @PathVariable Long idPost,
+            @RequestHeader("Authorization") String token
+    ) {
+        return ResponseEntity.ok().body(fileService.uploadFile(file, token, idPost));
+    }
+
+    @GetMapping("/download/{fileHash}")
+    public ResponseEntity<ByteArrayResource> downloadFile(
+            @PathVariable String fileHash
+    ) {
+        DownloadResponseDTO file = fileService.downloadFile(fileHash);
+        ByteArrayResource resource = new ByteArrayResource(file.getData());
         return ResponseEntity
                 .ok()
-                .contentLength(data.length)
+                .contentLength(file.getData().length)
                 .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + fileName + "\"")
+                .header("Content-disposition", "attachment; filename=\"" + file.getName() + "\"")
                 .body(resource);
     }
 
-    @GetMapping("/preview/{fileName}")
-    public ResponseEntity<ByteArrayResource> previewFile(@PathVariable String fileName) {
-        byte[] data = fileService.downloadFile(fileName);
-        ByteArrayResource resource = new ByteArrayResource(data);
+    @GetMapping("/preview/{fileHash}")
+    public ResponseEntity<ByteArrayResource> previewFile(
+            @PathVariable String fileHash
+    ) {
+        DownloadResponseDTO file = fileService.downloadFile(fileHash);
+        ByteArrayResource resource = new ByteArrayResource(file.getData());
         return ResponseEntity
                 .ok()
-                .contentLength(data.length)
-                .header("Content-type", "application/octet-stream")
-                .header("Content-disposition", "attachment; filename=\"" + fileName + "\"")
+                .contentLength(file.getData().length)
+                .header("Content-type", file.getType())
+                .header("Content-disposition", "inline; filename=\"" + file.getName() + "\"")
                 .body(resource);
     }
 

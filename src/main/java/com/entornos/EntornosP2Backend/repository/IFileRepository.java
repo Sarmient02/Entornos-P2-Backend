@@ -9,4 +9,6 @@ public interface IFileRepository extends JpaRepository<File, Long> {
 
     Optional<File> findById(Long id);
 
+    Optional<File> findByHashName(String hashName);
+
 }

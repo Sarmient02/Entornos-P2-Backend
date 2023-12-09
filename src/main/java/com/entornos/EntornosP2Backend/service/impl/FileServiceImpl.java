@@ -5,13 +5,18 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.util.IOUtils;
+import com.entornos.EntornosP2Backend.dto.DownloadResponseDTO;
 import com.entornos.EntornosP2Backend.dto.FileData;
+import com.entornos.EntornosP2Backend.dto.ResponseDTO;
+import com.entornos.EntornosP2Backend.exception.CustomException;
 import com.entornos.EntornosP2Backend.model.File;
 import com.entornos.EntornosP2Backend.repository.IFileRepository;
+import com.entornos.EntornosP2Backend.repository.IPostRepository;
 import com.entornos.EntornosP2Backend.service.interfaces.IFileService;
 import com.google.common.hash.Hashing;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,13 +37,22 @@ public class FileServiceImpl implements IFileService {
     @Autowired
     private AmazonS3 s3Client;
 
+    private JwtServiceImpl jwtService;
+
     private IFileRepository fileRepository;
 
+    private IPostRepository postRepository;
+
     @Override
-    public File uploadFile(MultipartFile file, Long userId) {
+    public ResponseDTO uploadFile(MultipartFile file, String token, Long postId) {
+        String jwt = token.substring(7);
+        Long userId = Long.valueOf(jwtService.extractUserId(jwt));
         java.io.File fileObj = convertMultiPartFileToFile(file);
         String fileName = System.currentTimeMillis()+"_"+file.getOriginalFilename();
         String hashName = generateHash(fileName);
+        if(!postRepository.existsByIdAndUserId(postId, userId)){
+            throw new CustomException("Post no encontrado");
+        }
         s3Client.putObject(new PutObjectRequest(
                 bucketName,
                 fileName,
@@ -52,18 +66,31 @@ public class FileServiceImpl implements IFileService {
                 .size(file.getSize())
                 .createdAt(LocalDateTime.now())
                 .idUser(userId)
+                .idPost(postId)
                 .hashName(hashName)
                 .build());
-        return fileToSave;
+        if (fileToSave == null) {
+            throw new CustomException("Error al guardar el archivo");
+        }
+        return ResponseDTO.builder()
+                .message("Archivo subido correctamente")
+                .build();
     }
 
     @Override
-    public byte[] downloadFile(String fileName) {
-        S3Object s3Object = s3Client.getObject(bucketName, fileName);
+    public DownloadResponseDTO downloadFile(String fileHash) {
+        File file = fileRepository.findByHashName(fileHash).orElseThrow(
+                () -> new CustomException("Archivo no encontrado")
+        );
+        S3Object s3Object = s3Client.getObject(bucketName, file.getFileUrl());
         S3ObjectInputStream inputStream = s3Object.getObjectContent();
         try {
             byte[] content = IOUtils.toByteArray(inputStream);
-            return content;
+            return DownloadResponseDTO.builder()
+                    .data(content)
+                    .name(file.getName())
+                    .type(file.getFileType())
+                    .build();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -108,6 +135,16 @@ public class FileServiceImpl implements IFileService {
     @Autowired
     public void setFileRepository(IFileRepository fileRepository){
         this.fileRepository = fileRepository;
+    }
+
+    @Autowired
+    public void setJwtService(@Qualifier("jwtServiceImpl") JwtServiceImpl jwtService){
+        this.jwtService = jwtService;
+    }
+
+    @Autowired
+    public void setPostRepository(IPostRepository postRepository){
+        this.postRepository = postRepository;
     }
 
 }
