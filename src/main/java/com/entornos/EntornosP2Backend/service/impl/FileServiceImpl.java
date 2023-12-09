@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -111,6 +112,7 @@ public class FileServiceImpl implements IFileService {
     }
 
     @Override
+    @Transactional
     public String deleteFile(String fileName) {
         fileRepository.deleteByFileUrl(fileName);
         s3Client.deleteObject(bucketName, fileName);

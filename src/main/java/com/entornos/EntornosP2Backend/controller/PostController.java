@@ -39,12 +39,29 @@ public class PostController {
         return ResponseEntity.ok().body(allPosts);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<PostResponseDTO> getPostById(
+            @PathVariable Long id
+    ) {
+        PostResponseDTO post = postService.getPostById(id);
+        return ResponseEntity.ok().body(post);
+    }
+
     @PutMapping()
     public ResponseEntity<ResponseDTO> editPost(
             @RequestHeader("Authorization") String token,
             @RequestBody EditPostRequestDTO post
     ) {
         ResponseDTO createdPost = postService.editPost(post, token);
+        return ResponseEntity.ok().body(createdPost);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResponseDTO> deletePost(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id
+    ) {
+        ResponseDTO createdPost = postService.deletePost(id, token);
         return ResponseEntity.ok().body(createdPost);
     }
 

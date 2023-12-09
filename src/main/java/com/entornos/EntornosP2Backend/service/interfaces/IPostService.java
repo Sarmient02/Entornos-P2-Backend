@@ -16,6 +16,10 @@ public interface IPostService {
 
     List<PostResponseDTO> getAllPosts();
 
+    PostResponseDTO getPostById(Long id);
+
     ResponseDTO editPost(EditPostRequestDTO editedPost, String token);
+
+    ResponseDTO deletePost(Long id, String token);
 
 }

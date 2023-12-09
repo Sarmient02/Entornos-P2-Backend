@@ -101,6 +101,37 @@ public class PostServiceImpl implements IPostService {
         return IPostMapper.INSTANCE.postsToPostResponseDTOList(allPosts);
     }
 
+    @Override
+    public PostResponseDTO getPostById(Long id){
+        Post post = postRepository.findById(id).orElseThrow(
+                () -> new CustomException("Post not found")
+        );
+        return IPostMapper.INSTANCE.postToPostResponseDTO(post);
+    }
+
+    @Override
+    @Transactional
+    public ResponseDTO deletePost(Long id, String token){
+        String jwt = token.substring(7);
+        Long userId = Long.valueOf(jwtService.extractUserId(jwt));
+        Post postToDelete = postRepository.findById(id).orElseThrow(
+                () -> new CustomException("Post not found")
+        );
+        if (!Objects.equals(postToDelete.getUserId(), userId)) {
+            throw new CustomException("You can't delete this post");
+        }
+        List<File> files = postToDelete.getFile();
+        if (files != null || !files.isEmpty()){
+            for (File file : files) {
+                fileService.deleteFile(file.getFileUrl());
+            }
+        }
+        postRepository.deleteById(id);
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Post eliminado correctamente");
+        return response;
+    }
+
     @Autowired
     public void setJwtService(@Qualifier("jwtServiceImpl") JwtServiceImpl jwtService){
         this.jwtService = jwtService;
