@@ -1,7 +1,9 @@
 package com.entornos.EntornosP2Backend.controller;
 
+import com.entornos.EntornosP2Backend.dto.EditPostRequestDTO;
 import com.entornos.EntornosP2Backend.dto.PostRequestDTO;
 import com.entornos.EntornosP2Backend.dto.PostResponseDTO;
+import com.entornos.EntornosP2Backend.dto.ResponseDTO;
 import com.entornos.EntornosP2Backend.service.interfaces.IPostService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,10 +33,19 @@ public class PostController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<PostResponseDTO>> createPost(
+    public ResponseEntity<List<PostResponseDTO>> getPosts(
     ) {
         List<PostResponseDTO> allPosts = postService.getAllPosts();
         return ResponseEntity.ok().body(allPosts);
+    }
+
+    @PutMapping()
+    public ResponseEntity<ResponseDTO> editPost(
+            @RequestHeader("Authorization") String token,
+            @RequestBody EditPostRequestDTO post
+    ) {
+        ResponseDTO createdPost = postService.editPost(post, token);
+        return ResponseEntity.ok().body(createdPost);
     }
 
     @Autowired

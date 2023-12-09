@@ -112,6 +112,7 @@ public class FileServiceImpl implements IFileService {
 
     @Override
     public String deleteFile(String fileName) {
+        fileRepository.deleteByFileUrl(fileName);
         s3Client.deleteObject(bucketName, fileName);
         return fileName + " removed ...";
     }

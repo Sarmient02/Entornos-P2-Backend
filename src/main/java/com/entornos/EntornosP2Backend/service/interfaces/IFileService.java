@@ -10,12 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface IFileService {
 
-    public ResponseDTO uploadFile(MultipartFile file, String token, Long postId);
+    ResponseDTO uploadFile(MultipartFile file, String token, Long postId);
 
-    public DownloadResponseDTO downloadFile(String fileName);
+    DownloadResponseDTO downloadFile(String fileName);
 
-    public FileData previewFile(String fileName);
+    FileData previewFile(String fileName);
 
-    public String deleteFile(String fileName);
+    String deleteFile(String fileName);
 
 }

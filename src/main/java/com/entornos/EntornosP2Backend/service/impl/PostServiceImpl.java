@@ -1,7 +1,9 @@
 package com.entornos.EntornosP2Backend.service.impl;
 
+import com.entornos.EntornosP2Backend.dto.EditPostRequestDTO;
 import com.entornos.EntornosP2Backend.dto.PostRequestDTO;
 import com.entornos.EntornosP2Backend.dto.PostResponseDTO;
+import com.entornos.EntornosP2Backend.dto.ResponseDTO;
 import com.entornos.EntornosP2Backend.exception.CustomException;
 import com.entornos.EntornosP2Backend.mapper.IPostMapper;
 import com.entornos.EntornosP2Backend.model.File;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PostServiceImpl implements IPostService {
@@ -50,11 +53,51 @@ public class PostServiceImpl implements IPostService {
         return savedPost.getId().toString();
     }
 
+    @Transactional
+    public ResponseDTO editPost(EditPostRequestDTO editedPost, String token) {
+        String jwt = token.substring(7);
+        Long userId = Long.valueOf(jwtService.extractUserId(jwt));
+        if (editedPost.getTitle().isEmpty() || editedPost.getDescription().isEmpty() || editedPost.getSubjectId() == null) {
+            throw new CustomException("Title, description and subject are required");
+        }
+        Post oldPost = postRepository.findById(editedPost.getId()).orElseThrow(
+                () -> new CustomException("Post not found")
+        );
+        if (!Objects.equals(oldPost.getUserId(), userId)) {
+            throw new CustomException("You can't edit this post");
+        }
+        List<File> files = new ArrayList<>();
+        List<File> oldFiles = oldPost.getFile();
+        if (editedPost.getFiles() != null) {
+            for (File file : oldFiles) {
+                if (!editedPost.getFiles().contains(file.getHashName())) {
+                    fileService.deleteFile(file.getFileUrl());
+                }
+            }
+            for (String file : editedPost.getFiles()) {
+                files.add(fileRepository.findByHashName(file).orElseThrow(
+                        () -> new CustomException("File not found")
+                ));
+            }
+        }
+        Post postToSave = Post.builder()
+                .id(editedPost.getId())
+                .title(editedPost.getTitle())
+                .description(editedPost.getDescription())
+                .userId(userId)
+                .subjectId(editedPost.getSubjectId())
+                .createdAt(LocalDateTime.now())
+                .file(files)
+                .build();
+        Post savedPost = postRepository.save(postToSave);
+        ResponseDTO response = new ResponseDTO();
+        response.setMessage("Post editado correctamente");
+        return response;
+    }
+
     @Override
     public List<PostResponseDTO> getAllPosts(){
-        System.out.println("hola");
         List<Post> allPosts = postRepository.findAll();
-        System.out.println("si");
         return IPostMapper.INSTANCE.postsToPostResponseDTOList(allPosts);
     }
 
