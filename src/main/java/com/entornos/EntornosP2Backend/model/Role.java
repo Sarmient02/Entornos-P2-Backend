@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "role")
+@Table(name = "role", schema = "proyectofinal")
 public class Role implements Serializable {
     private static final long serialVersionUID = 3886490734477594296L;
     @Id
