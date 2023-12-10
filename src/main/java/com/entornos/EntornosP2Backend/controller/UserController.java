@@ -56,6 +56,18 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserData());
     }
 
+    @PostMapping("/follow")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity<?> followUser(@RequestParam Long idUser, @RequestParam Long idFollowed) {
+        return ResponseEntity.ok(userService.followUser(idUser, idFollowed));
+    }
+
+    @PostMapping("/unfollow")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity<?> unfollowUser(@RequestParam Long idUser, @RequestParam Long idFollowed) {
+        return ResponseEntity.ok(userService.unfollowUser(idUser, idFollowed));
+    }
+
     @Autowired
     public void setUserService(@Qualifier("userServiceImpl") IUserService userService){
         this.userService = userService;

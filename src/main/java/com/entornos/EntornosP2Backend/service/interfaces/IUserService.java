@@ -32,4 +32,7 @@ public interface IUserService {
 
     public UserDataDTO getUserData();
 
+    Boolean followUser(Long idUser, Long idFollowed);
+
+    Boolean unfollowUser(Long idUser, Long idFollowed);
 }

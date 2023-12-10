@@ -4,13 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
-@Data
 @Entity
-@Table(name = "subject", schema = "proyectofinal")
-public class Subject implements Serializable {
-    private static final long serialVersionUID = -6719407749632392L;
+@Data
+@Table(name = "career", schema = "proyectofinal")
+public class Career implements Serializable {
+    private static final long serialVersionUID = -6225764162301638186L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -19,13 +18,10 @@ public class Subject implements Serializable {
     @Column(name = "name", nullable = false, length = Integer.MAX_VALUE)
     private String name;
 
-    @Column(name = "career_id", nullable = false)
-    private Long careerId;
+    @Column(name = "career_code", nullable = false, length = Integer.MAX_VALUE)
+    private String careerCode;
 
-    @OneToMany(mappedBy = "subject")
-    private List<Post> posts;
-
-    @OneToOne(mappedBy = "idSubject")
+    @OneToOne(mappedBy = "idCareer")
     private SubjectCareer subjectCareer;
 
 

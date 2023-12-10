@@ -47,8 +47,8 @@ public class Post implements Serializable {
     private User user;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "subject_id", nullable = false, insertable = false, updatable = false)
     private Subject subject;
 
 }

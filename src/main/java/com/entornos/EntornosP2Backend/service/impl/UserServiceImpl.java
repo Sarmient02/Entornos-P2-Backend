@@ -3,13 +3,11 @@ package com.entornos.EntornosP2Backend.service.impl;
 import com.entornos.EntornosP2Backend.dto.EditUserRequestDTO;
 import com.entornos.EntornosP2Backend.dto.SignUpRequestDTO;
 import com.entornos.EntornosP2Backend.dto.UserDataDTO;
-import com.entornos.EntornosP2Backend.model.Role;
-import com.entornos.EntornosP2Backend.model.User;
-import com.entornos.EntornosP2Backend.model.UserRoles;
-import com.entornos.EntornosP2Backend.model.UserRolesId;
+import com.entornos.EntornosP2Backend.model.*;
 import com.entornos.EntornosP2Backend.repository.IRoleRepository;
 import com.entornos.EntornosP2Backend.repository.IUserRepository;
 import com.entornos.EntornosP2Backend.repository.IUserRoleRepository;
+import com.entornos.EntornosP2Backend.service.interfaces.IFollowRepository;
 import com.entornos.EntornosP2Backend.service.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +32,8 @@ public class UserServiceImpl implements IUserService {
 
     private IUserRoleRepository userRoleRepository;
     private IRoleRepository roleRepository;
+
+    private IFollowRepository followRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -172,6 +172,34 @@ public class UserServiceImpl implements IUserService {
         this.userRoleRepository.save(userRole);
     }
 
+    public Boolean followUser(Long userId, Long followedId) {
+        var user = this.userRepository.findById(userId);
+        var followed = this.userRepository.findById(followedId);
+        if (user.isEmpty() || followed.isEmpty()) {
+            return false;
+        }
+        var follow = new Follow();
+        follow.setFollowerId(userId);
+        follow.setFollowedId(followedId);
+        follow.setCreatedAt(new Date());
+        this.followRepository.save(follow);
+        return true;
+    }
+
+    public Boolean unfollowUser(Long userId, Long followedId) {
+        var user = this.userRepository.findById(userId);
+        var followed = this.userRepository.findById(followedId);
+        if (user.isEmpty() || followed.isEmpty()) {
+            return false;
+        }
+        var follow = this.followRepository.findByFollowedIdAndFollowerId(followedId, userId);
+        if (follow == null) {
+            return false;
+        }
+        this.followRepository.deleteById(follow.getId());
+        return true;
+    }
+
     @Override
     public Role saveRole(Role role) {
         return roleRepository.save(role);
@@ -190,5 +218,10 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     public void setUserRoleRepository(IUserRoleRepository userRoleRepository) {
         this.userRoleRepository = userRoleRepository;
+    }
+
+    @Autowired
+    public void setFollowRepository(IFollowRepository followRepository) {
+        this.followRepository = followRepository;
     }
 }
