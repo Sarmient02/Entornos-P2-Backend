@@ -57,6 +57,8 @@ public class User implements UserDetails, Serializable {
             @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<Role> roles;
 
+    @OneToMany(mappedBy = "followedUser")
+    private List<Follow> followers;
 
     /*@OneToMany(mappedBy = "user")
     private List<UserRoles> userRoles;*/

@@ -1,5 +1,6 @@
 package com.entornos.EntornosP2Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -21,8 +22,8 @@ public class Career implements Serializable {
     @Column(name = "career_code", nullable = false, length = Integer.MAX_VALUE)
     private String careerCode;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "idCareer")
     private SubjectCareer subjectCareer;
-
 
 }

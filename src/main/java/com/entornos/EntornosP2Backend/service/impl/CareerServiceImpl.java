@@ -35,7 +35,7 @@ public class CareerServiceImpl implements ICareerService {
     @Override
     public Career newCareer(CareerDTO newCareer) {
 
-        var exists = this.careerRepository.findTopByName(newCareer.getName());
+        var exists = this.careerRepository.findTopByNameOrCode(newCareer.getName(), newCareer.getCareerCode());
         if (exists != null) {
             return null;
         }
@@ -50,6 +50,10 @@ public class CareerServiceImpl implements ICareerService {
 
         var exists = this.careerRepository.findById(career.getId());
         if (exists.isEmpty()) {
+            return null;
+        }
+        var existsByCode = this.careerRepository.findByCodeAndIdNot(career.getCareerCode(), career.getId());
+        if (existsByCode != null) {
             return null;
         }
         var e = exists.get();

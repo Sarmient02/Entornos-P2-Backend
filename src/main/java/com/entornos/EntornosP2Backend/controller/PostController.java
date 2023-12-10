@@ -5,6 +5,7 @@ import com.entornos.EntornosP2Backend.model.Career;
 import com.entornos.EntornosP2Backend.model.Comment;
 import com.entornos.EntornosP2Backend.model.Subject;
 import com.entornos.EntornosP2Backend.model.Tag;
+import com.entornos.EntornosP2Backend.service.impl.JwtServiceImpl;
 import com.entornos.EntornosP2Backend.service.interfaces.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,7 @@ public class PostController {
     private ICareerService careerService;
     private ICommentService commentService;
     private ISubjectService subjectService;
+    private JwtServiceImpl jwtService;
 
     @PostMapping("/new")
     public ResponseEntity<String> createPost(
@@ -102,7 +104,7 @@ public class PostController {
         return ResponseEntity.ok().body(true);
     }
 
-    @PostMapping("/careers")
+    @GetMapping("/careers")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     public ResponseEntity<List<Career>> getCareers() {
         var careers = this.careerService.getAll();
@@ -146,8 +148,10 @@ public class PostController {
     @PostMapping("/comments-new")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     public ResponseEntity<Comment> newComment(
-            @RequestBody CommentDTO comment
+            @RequestBody CommentDTO comment, @RequestHeader("Authorization") String token
     ) {
+        var user = Long.valueOf(this.jwtService.extractUserId(token.substring(7)));
+        if (!user.equals(comment.getIdUser())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         Comment newComment = commentService.newComment(comment);
         return ResponseEntity.ok().body(newComment);
     }
@@ -155,8 +159,10 @@ public class PostController {
     @PostMapping("/comments-edit")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     public ResponseEntity<Comment> editComment(
-            @RequestBody CommentDTO comment
+            @RequestBody CommentDTO comment, @RequestHeader("Authorization") String token
     ) {
+        var user = Long.valueOf(this.jwtService.extractUserId(token.substring(7)));
+        if (!user.equals(comment.getIdUser())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         Comment editComment = commentService.editComment(comment);
         return ResponseEntity.ok().body(editComment);
     }
@@ -164,8 +170,11 @@ public class PostController {
     @DeleteMapping("/comments-delete")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     public ResponseEntity<Boolean> deleteComment(
-            @RequestParam Long commentId
+            @RequestParam Long commentId, @RequestHeader("Authorization") String token
     ) {
+        var user = Long.valueOf(this.jwtService.extractUserId(token.substring(7)));
+        Comment comment = commentService.getCommentById(commentId);
+        if (!user.equals(comment.getIdUser())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         Boolean deleteComment = commentService.deleteComment(commentId);
         return ResponseEntity.ok().body(deleteComment);
     }
@@ -247,6 +256,11 @@ public class PostController {
     @Autowired
     public void setSubjectService(@Qualifier("subjectServiceImpl") ISubjectService subjectService){
         this.subjectService = subjectService;
+    }
+
+    @Autowired
+    public void setJwtService(@Qualifier("jwtServiceImpl") JwtServiceImpl jwtService){
+        this.jwtService = jwtService;
     }
 
 }
