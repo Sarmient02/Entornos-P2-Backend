@@ -35,6 +35,8 @@ public interface IPostMapper {
         }
         SubjectResponseDTO subject = new SubjectResponseDTO();
         subject.setName(post.getSubject().getName());
+        subject.setId(post.getSubject().getId());
+        subject.setCareerId(post.getSubject().getCareerId());
         dto.setSubject(subject);
         User user = post.getUser();
         UserPostData userData = new UserPostData();
