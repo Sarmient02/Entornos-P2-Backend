@@ -1,5 +1,6 @@
 package com.entornos.EntornosP2Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,10 +23,12 @@ public class Subject implements Serializable {
     @Column(name = "career_id", nullable = false)
     private Long careerId;
 
-    @OneToMany(mappedBy = "subject")
+    @JsonIgnore
+    @OneToMany(mappedBy = "subject", fetch = FetchType.LAZY)
     private List<Post> posts;
 
-    @OneToOne(mappedBy = "idSubject")
+    @JsonIgnore
+    @OneToOne(mappedBy = "idSubject", fetch = FetchType.LAZY)
     private SubjectCareer subjectCareer;
 
 

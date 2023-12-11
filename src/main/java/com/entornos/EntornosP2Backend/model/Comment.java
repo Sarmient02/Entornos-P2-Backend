@@ -1,5 +1,6 @@
 package com.entornos.EntornosP2Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -32,10 +33,12 @@ public class Comment implements Serializable {
     @Column(name = "score")
     private Long score;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_post", nullable = false, insertable = false, updatable = false)
     private Post post;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_user", nullable = false, insertable = false, updatable = false)
     private User user;

@@ -1,5 +1,6 @@
 package com.entornos.EntornosP2Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,10 +24,12 @@ public class Follow implements Serializable {
     @Column(name = "followed_user_id")
     private Long followedId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "following_user_id", insertable = false, updatable = false)
     private User followingUser;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followed_user_id", insertable = false, updatable = false)
     private User followedUser;
