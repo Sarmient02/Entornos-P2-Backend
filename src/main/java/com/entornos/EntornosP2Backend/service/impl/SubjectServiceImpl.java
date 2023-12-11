@@ -20,6 +20,11 @@ public class SubjectServiceImpl implements ISubjectService {
     }
 
     @Override
+    public List<Subject> getAllSubjects() {
+        return this.subjectRepository.findAll();
+    }
+
+    @Override
     public Boolean deleteSubject(Long id) {
 
         var exists = this.subjectRepository.findById(id);

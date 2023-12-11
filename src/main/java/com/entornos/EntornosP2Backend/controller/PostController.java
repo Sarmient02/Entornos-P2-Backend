@@ -197,6 +197,14 @@ public class PostController {
         return ResponseEntity.ok().body(allSubjects);
     }
 
+    @GetMapping("/subjects/all")
+    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
+    public ResponseEntity<List<Subject>> getSubjects(
+    ) {
+        List<Subject> allSubjects = subjectService.getAllSubjects();
+        return ResponseEntity.ok().body(allSubjects);
+    }
+
     @GetMapping("/subjects/{id}")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
     public ResponseEntity<Subject> getSubjectById(

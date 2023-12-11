@@ -11,6 +11,8 @@ public interface ISubjectService {
 
     List<Subject> getAllByCareer(Long careerId);
 
+    List<Subject> getAllSubjects();
+
     Boolean deleteSubject(Long id);
 
     Subject newSubject(SubjectDTO newSubject);
