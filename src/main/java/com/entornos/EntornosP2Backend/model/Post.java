@@ -51,4 +51,8 @@ public class Post implements Serializable {
     @JoinColumn(name = "subject_id", nullable = false, insertable = false, updatable = false)
     private Subject subject;
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Comment> comment;
+
 }
