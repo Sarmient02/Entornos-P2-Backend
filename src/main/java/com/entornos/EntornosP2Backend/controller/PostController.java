@@ -105,11 +105,21 @@ public class PostController {
     }
 
     @GetMapping("/careers")
-    @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
+    @PreAuthorize("hasAuthority('admin') || hasAuthority('user') || hasAuthority('moderator')")
     public ResponseEntity<List<Career>> getCareers() {
         var careers = this.careerService.getAll();
         if (careers.isEmpty()) return ResponseEntity.status(HttpStatus.NO_CONTENT).body(Collections.emptyList());
         return ResponseEntity.ok().body(careers);
+    }
+
+    @GetMapping("/careers/{id}")
+    @PreAuthorize("hasAuthority('admin') || hasAuthority('user') || hasAuthority('moderator')")
+    public ResponseEntity<Career> getCareerById(
+            @PathVariable Long id
+    ) {
+        var career = this.careerService.getCareerById(id);
+        if (career == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        return ResponseEntity.ok().body(career);
     }
 
     @PostMapping("/careers-new")
