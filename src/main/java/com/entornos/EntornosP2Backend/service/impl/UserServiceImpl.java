@@ -200,6 +200,16 @@ public class UserServiceImpl implements IUserService {
         return true;
     }
 
+    public Boolean isFollowing(Long userId, Long followedId) {
+        var user = this.userRepository.findById(userId);
+        var followed = this.userRepository.findById(followedId);
+        if (user.isEmpty() || followed.isEmpty()) {
+            return false;
+        }
+        var follow = this.followRepository.findByFollowedIdAndFollowerId(followedId, userId);
+        return follow != null;
+    }
+
     @Override
     public Role saveRole(Role role) {
         return roleRepository.save(role);

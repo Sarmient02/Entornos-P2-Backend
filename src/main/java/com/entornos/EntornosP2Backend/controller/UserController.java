@@ -74,6 +74,15 @@ public class UserController {
         return ResponseEntity.ok(userService.unfollowUser(idUser, idFollowed));
     }
 
+    @GetMapping("/checkFollow")
+    @PreAuthorize("hasAuthority('user')")
+    public ResponseEntity<Boolean> checkFollow(@RequestParam Long idUser, @RequestParam Long idFollowed, @RequestHeader("Authorization") String token) {
+        var id = Long.valueOf(jwt.extractUserId(token.substring(7)));
+        if (!idUser.equals(id)) return ResponseEntity.badRequest().body(null);
+        return ResponseEntity.ok(userService.isFollowing(idUser, idFollowed));
+    }
+
+
     @Autowired
     public void setUserService(@Qualifier("userServiceImpl") IUserService userService){
         this.userService = userService;

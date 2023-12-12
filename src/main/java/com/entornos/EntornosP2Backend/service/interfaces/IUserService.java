@@ -35,4 +35,6 @@ public interface IUserService {
     Boolean followUser(Long idUser, Long idFollowed);
 
     Boolean unfollowUser(Long idUser, Long idFollowed);
+
+    Boolean isFollowing(Long idUser, Long idFollowed);
 }

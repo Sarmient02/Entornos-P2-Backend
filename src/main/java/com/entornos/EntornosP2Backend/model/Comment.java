@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -22,7 +23,7 @@ public class Comment implements Serializable {
     private String body;
 
     @Column(name = "created_at")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "id_post")
     private Long postId;
@@ -40,7 +41,7 @@ public class Comment implements Serializable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_user", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "id_user", insertable = false, updatable = false)
     private User user;
 
 }

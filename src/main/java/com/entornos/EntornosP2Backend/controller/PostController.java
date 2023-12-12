@@ -138,21 +138,21 @@ public class PostController {
 
     @GetMapping("/comments")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
-    public ResponseEntity<List<Comment>> getComments(
+    public ResponseEntity<List<CommentResponseDTO>> getComments(
             @RequestParam Long postId
     ) {
-        List<Comment> allComments = commentService.getAll(postId);
+        List<CommentResponseDTO> allComments = commentService.getAll(postId);
         return ResponseEntity.ok().body(allComments);
     }
 
     @PostMapping("/comments-new")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
-    public ResponseEntity<Comment> newComment(
+    public ResponseEntity<CommentResponseDTO> newComment(
             @RequestBody CommentDTO comment, @RequestHeader("Authorization") String token
     ) {
         var user = Long.valueOf(this.jwtService.extractUserId(token.substring(7)));
         if (!user.equals(comment.getIdUser())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
-        Comment newComment = commentService.newComment(comment);
+        CommentResponseDTO newComment = commentService.newComment(comment);
         return ResponseEntity.ok().body(newComment);
     }
 
@@ -173,18 +173,18 @@ public class PostController {
             @RequestParam Long commentId, @RequestHeader("Authorization") String token
     ) {
         var user = Long.valueOf(this.jwtService.extractUserId(token.substring(7)));
-        Comment comment = commentService.getCommentById(commentId);
-        if (!user.equals(comment.getIdUser())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+        CommentResponseDTO comment = commentService.getCommentById(commentId);
+        if (!user.equals(comment.getUser().getId())) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
         Boolean deleteComment = commentService.deleteComment(commentId);
         return ResponseEntity.ok().body(deleteComment);
     }
 
     @GetMapping("/comments/{id}")
     @PreAuthorize("hasAuthority('admin') || hasAuthority('user')")
-    public ResponseEntity<Comment> getCommentById(
+    public ResponseEntity<CommentResponseDTO> getCommentById(
             @PathVariable Long id
     ) {
-        Comment comment = commentService.getCommentById(id);
+        CommentResponseDTO comment = commentService.getCommentById(id);
         return ResponseEntity.ok().body(comment);
     }
 
