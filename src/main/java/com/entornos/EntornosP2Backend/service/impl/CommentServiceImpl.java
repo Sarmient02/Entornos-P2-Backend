@@ -71,6 +71,7 @@ public class CommentServiceImpl implements ICommentService {
         comment.setIdUser(newComment.getIdUser());
         comment.setBody(newComment.getBody());
         comment.setCreatedAt(LocalDateTime.now());
+        comment.setScore(newComment.getScore());
         Comment comentario = commentRepository.save(comment);
         User user = userRepository.findById(newComment.getIdUser()).orElseThrow(
                 () -> new CustomException("Usuario no encontrado")
